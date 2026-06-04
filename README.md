@@ -292,6 +292,7 @@ Para mayor detalle sobre la configuración manual, ver las secciones siguientes.
 | `PORT` | Puerto del servidor | `3000` |
 | `NODE_ENV` | Entorno de ejecución | `development` |
 | `LOG_LEVEL` | Nivel de logs Winston | `info` |
+| `ALLOWED_ORIGIN` | Origen(es) CORS permitidos en producción (coma-separado). En desarrollo se permite `localhost:5173` automáticamente. | `https://tudominio.com` |
 
 ### Frontend (`.env`)
 

@@ -13,9 +13,10 @@ export class JwtTokenService implements ITokenService {
   ) {}
 
   generate(payload: TokenPayload): string {
-    return jwt.sign(payload, this.secret, {
-      expiresIn: this.expiresIn as jwt.SignOptions['expiresIn'],
-    });
+    // Cast via SignOptions to bridge the gap between plain string and
+    // the branded ms.StringValue type under exactOptionalPropertyTypes.
+    const options = { expiresIn: this.expiresIn } as jwt.SignOptions;
+    return jwt.sign(payload, this.secret, options);
   }
 
   verify(token: string): TokenPayload {
