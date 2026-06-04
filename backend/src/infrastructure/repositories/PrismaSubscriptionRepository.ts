@@ -6,6 +6,7 @@ import type { PrismaClient, Subscription as PrismaSubscription } from '@prisma/c
 import type {
   ISubscriptionRepository,
   CreateSubscriptionInput,
+  UpdateSubscriptionInput,
 } from '../../domain/repositories/ISubscriptionRepository';
 import { Subscription } from '../../domain/entities/Subscription';
 import { SubscriptionStatus } from '../../domain/enums';
@@ -54,6 +55,16 @@ export class PrismaSubscriptionRepository implements ISubscriptionRepository {
         // status defaults to ACTIVE per schema
       },
     });
+    return this.toDomain(record);
+  }
+
+  async update(id: string, input: UpdateSubscriptionInput): Promise<Subscription> {
+    const data: Parameters<typeof this.prisma.subscription.update>[0]['data'] = {};
+    if (input.planId    !== undefined) { data.planId    = input.planId;    }
+    if (input.startDate !== undefined) { data.startDate = input.startDate; }
+    if (input.endDate   !== undefined) { data.endDate   = input.endDate;   }
+
+    const record = await this.prisma.subscription.update({ where: { id }, data });
     return this.toDomain(record);
   }
 

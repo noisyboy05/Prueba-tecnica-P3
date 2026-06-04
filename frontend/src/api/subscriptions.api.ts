@@ -20,3 +20,18 @@ export const createSubscription = async (payload: {
   const res = await axiosInstance.post<ApiSuccessResponse<Subscription>>('/subscriptions', payload);
   return res.data.data;
 };
+
+export const updateSubscription = async (
+  id: string,
+  payload: { planId?: string; startDate?: string; endDate?: string },
+): Promise<Subscription> => {
+  const res = await axiosInstance.put<ApiSuccessResponse<Subscription>>(
+    `/subscriptions/${id}`,
+    payload,
+  );
+  return res.data.data;
+};
+
+export const cancelSubscription = async (id: string): Promise<void> => {
+  await axiosInstance.patch(`/subscriptions/${id}/cancel`);
+};

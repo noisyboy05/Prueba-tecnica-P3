@@ -26,6 +26,8 @@ import { CreateSubscriptionUseCase } from '../../application/use-cases/subscript
 import { GetUserSubscriptionUseCase } from '../../application/use-cases/subscriptions/GetUserSubscriptionUseCase';
 import { GetAllSubscriptionsUseCase } from '../../application/use-cases/subscriptions/GetAllSubscriptionsUseCase';
 import { ExpireSubscriptionUseCase } from '../../application/use-cases/subscriptions/ExpireSubscriptionUseCase';
+import { UpdateSubscriptionUseCase } from '../../application/use-cases/subscriptions/UpdateSubscriptionUseCase';
+import { CancelSubscriptionUseCase } from '../../application/use-cases/subscriptions/CancelSubscriptionUseCase';
 import { GenerateInvoiceUseCase } from '../../application/use-cases/invoices/GenerateInvoiceUseCase';
 import { GetUserInvoicesUseCase } from '../../application/use-cases/invoices/GetUserInvoicesUseCase';
 import { GetAllInvoicesUseCase } from '../../application/use-cases/invoices/GetAllInvoicesUseCase';
@@ -109,7 +111,9 @@ export const buildContainer = (): AppContainer => {
     subscriptionRepository,
     planRepository,
   );
-  const expireSubscriptionUseCase = new ExpireSubscriptionUseCase(subscriptionRepository);
+  const expireSubscriptionUseCase  = new ExpireSubscriptionUseCase(subscriptionRepository);
+  const updateSubscriptionUseCase  = new UpdateSubscriptionUseCase(subscriptionRepository, planRepository);
+  const cancelSubscriptionUseCase  = new CancelSubscriptionUseCase(subscriptionRepository);
 
   const getUserInvoicesUseCase = new GetUserInvoicesUseCase(invoiceRepository);
   const getAllInvoicesUseCase = new GetAllInvoicesUseCase(invoiceRepository);
@@ -135,6 +139,8 @@ export const buildContainer = (): AppContainer => {
     createSubscriptionUseCase,
     getUserSubscriptionUseCase,
     getAllSubscriptionsUseCase,
+    updateSubscriptionUseCase,
+    cancelSubscriptionUseCase,
   );
   const invoicesController = new InvoicesController(
     getUserInvoicesUseCase,

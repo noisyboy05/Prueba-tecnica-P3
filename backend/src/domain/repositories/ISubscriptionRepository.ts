@@ -12,12 +12,20 @@ export interface CreateSubscriptionInput {
   endDate: Date;
 }
 
+export interface UpdateSubscriptionInput {
+  planId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
 export interface ISubscriptionRepository {
   findById(id: string): Promise<Subscription | null>;
   findByUserId(userId: string): Promise<Subscription[]>;
   findActiveByUserId(userId: string): Promise<Subscription | null>;
   findAll(): Promise<Subscription[]>;
   create(input: CreateSubscriptionInput): Promise<Subscription>;
+  /** Updates mutable fields (plan, dates). Historical invoices are preserved. */
+  update(id: string, input: UpdateSubscriptionInput): Promise<Subscription>;
   updateStatus(id: string, status: SubscriptionStatus): Promise<Subscription>;
   /** Used by DeletePlanUseCase to prevent deletion of plans in use */
   existsActiveByPlanId(planId: string): Promise<boolean>;
