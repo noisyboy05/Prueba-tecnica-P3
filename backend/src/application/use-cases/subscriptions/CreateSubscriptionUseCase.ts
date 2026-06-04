@@ -1,4 +1,14 @@
 // CreateSubscriptionUseCase — ADMIN creates a subscription for a user
+//
+// TECHNICAL DEBT (controlled): The subscription creation and invoice generation
+// are two separate database writes. If the invoice creation fails after the
+// subscription is committed, the subscription will exist without an associated
+// invoice, leaving the system in an inconsistent state.
+// Resolution: wrap both operations in a prisma.$transaction() via a
+// TransactionPort abstraction in the application layer. Deferred to avoid
+// premature optimization; current risk is low in development but must be
+// addressed before production.
+//
 // Enforces:
 //   1. User exists.
 //   2. Plan exists.
