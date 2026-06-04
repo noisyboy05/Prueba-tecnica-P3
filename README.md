@@ -186,7 +186,9 @@ La regla cardinal es: **las dependencias solo apuntan hacia adentro** (interface
 
 ---
 
-## Instalación
+## Arranque rápido
+
+> 5 pasos para tener el proyecto completamente funcional con datos de prueba.
 
 ### Prerrequisitos
 
@@ -194,27 +196,87 @@ La regla cardinal es: **las dependencias solo apuntan hacia adentro** (interface
 - PostgreSQL en ejecución
 - npm ≥ 9
 
-### Backend
+### Paso 1 — Crear la base de datos
+
+```bash
+createdb saas_flow
+```
+
+### Paso 2 — Configurar el backend
 
 ```bash
 cd backend
 npm install
-cp .env.example .env          # Completar variables (ver sección siguiente)
-npx prisma migrate dev --name init
-npx prisma generate
-npm run dev
+cp .env.example .env
 ```
 
-### Frontend
+Editar `.env` con la URL de la base de datos y un JWT secret:
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/saas_flow"
+JWT_SECRET="saasflow_dev_secret_key_change_in_production"
+JWT_EXPIRES_IN="24h"
+PORT=3000
+NODE_ENV=development
+```
+
+### Paso 3 — Inicializar BD y cargar datos de prueba
 
 ```bash
-cd frontend
-npm install
-cp .env.example .env          # Configurar VITE_API_BASE_URL
+npm run db:init
+```
+
+Este comando ejecuta en secuencia:
+1. `prisma migrate dev --name init` — crea tablas, enums e índices.
+2. `prisma db seed` — inserta admin, cliente y los 3 planes.
+
+### Paso 4 — Levantar el backend
+
+```bash
 npm run dev
 ```
 
-El backend corre en `http://localhost:3000` y el frontend en `http://localhost:5173`.
+### Paso 5 — Levantar el frontend
+
+```bash
+cd ../frontend
+npm install
+cp .env.example .env    # VITE_API_BASE_URL=http://localhost:3000/api
+npm run dev
+```
+
+**Backend:** `http://localhost:3000` · **Frontend:** `http://localhost:5173`
+
+---
+
+## Credenciales de prueba
+
+Creadas automáticamente por `npm run db:init`.
+
+| Rol | Email | Contraseña |
+|-----|-------|-----------|
+| **ADMIN** | `admin@saasflow.com` | `Admin123!` |
+| **CLIENT** | `client@saasflow.com` | `Client123!` |
+
+### Planes creados
+
+| Tier | Precio | Descripción |
+|------|--------|-------------|
+| BRONZE | $9.99 | Essential access — core platform features |
+| SILVER | $19.99 | Standard access — enhanced features and higher limits |
+| GOLD | $39.99 | Full access — all premium features and priority support |
+
+> **Flujo de demo recomendado:**
+> 1. Login como **ADMIN** → crear una suscripción SILVER para el CLIENT (`client@saasflow.com`).
+> 2. Login como **CLIENT** → ver la suscripción activa y la factura generada.
+> 3. Pagar la factura desde la página de Invoices.
+> 4. Volver al ADMIN → verificar el Dashboard actualizado.
+
+---
+
+## Instalación
+
+Para mayor detalle sobre la configuración manual, ver las secciones siguientes.
 
 ---
 
@@ -245,6 +307,9 @@ El backend corre en `http://localhost:3000` y el frontend en `http://localhost:5
 
 | Script | Comando | Descripción |
 |--------|---------|-------------|
+| **Init BD** | `npm run db:init` | Migra la BD y ejecuta el seed (primer uso) |
+| **Reset BD** | `npm run db:reset` | Borra y recrea la BD + migraciones + seed |
+| **Seed** | `npm run seed` | Solo ejecuta el seed (idempotente) |
 | Desarrollo | `npm run dev` | ts-node-dev con hot reload |
 | Build | `npm run build` | Compila TypeScript a `dist/` |
 | Producción | `npm start` | Ejecuta `dist/index.js` |
@@ -252,8 +317,8 @@ El backend corre en `http://localhost:3000` y el frontend en `http://localhost:5
 | Tests con cobertura | `npm run test:coverage` | Genera reporte en `coverage/` |
 | Lint | `npm run lint` | ESLint sobre `src/` |
 | Formato | `npm run format` | Prettier sobre `src/` |
-| Prisma migrate | `npm run prisma:migrate` | Aplica migraciones |
-| Prisma Studio | `npm run prisma:studio` | UI visual de BD |
+| Prisma migrate | `npm run prisma:migrate` | Aplica migraciones pendientes |
+| Prisma Studio | `npm run prisma:studio` | UI visual de la BD |
 
 ### Frontend
 
