@@ -1,2 +1,7 @@
-// useAuth hook — implemented in Fase 13
-export {};
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  return ctx;
+};

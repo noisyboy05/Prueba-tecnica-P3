@@ -1,10 +1,24 @@
-// Frontend shared types — mirror backend response DTOs for type-safe API consumption.
-// These types are independent of the backend entities; they are derived from API contracts.
+// Frontend shared types — mirror backend response DTOs and API envelope
 
 export type UserRole = 'ADMIN' | 'CLIENT';
 export type PlanName = 'BRONZE' | 'SILVER' | 'GOLD';
 export type SubscriptionStatus = 'ACTIVE' | 'EXPIRED';
 export type InvoiceStatus = 'PENDING' | 'PAID' | 'OVERDUE';
+
+// ── API envelope ──────────────────────────────────────────────────────────────
+
+export interface ApiSuccessResponse<T> {
+  success: true;
+  data: T;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+  errors?: Record<string, string[] | undefined>;
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
 
 export interface AuthUser {
   id: string;
@@ -17,6 +31,8 @@ export interface LoginResponse {
   token: string;
   user: AuthUser;
 }
+
+// ── Domain models ─────────────────────────────────────────────────────────────
 
 export interface Plan {
   id: string;
@@ -56,10 +72,4 @@ export interface DashboardMetrics {
   paidInvoices: number;
   overdueInvoices: number;
   totalRevenue: number;
-}
-
-export interface ApiError {
-  message: string;
-  statusCode: number;
-  errors?: Record<string, string[]>;
 }
