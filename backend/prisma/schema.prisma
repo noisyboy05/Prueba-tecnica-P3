@@ -79,8 +79,11 @@ model Subscription {
   plan     Plan      @relation(fields: [planId], references: [id], onDelete: Restrict)
   invoices Invoice[]
 
-  // Enforce business rule: a user can have only one ACTIVE subscription
-  @@unique([userId, status], name: "unique_active_subscription")
+  // Business rule "one ACTIVE subscription per user" is enforced at the application layer
+  // (CreateSubscriptionUseCase.findActiveByUserId), not here, because a user may have
+  // multiple EXPIRED subscriptions in their history.
+  @@index([userId])
+  @@index([userId, status])
   @@map("subscriptions")
 }
 

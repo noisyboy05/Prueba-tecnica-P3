@@ -19,4 +19,6 @@ export interface ISubscriptionRepository {
   findAll(): Promise<Subscription[]>;
   create(input: CreateSubscriptionInput): Promise<Subscription>;
   updateStatus(id: string, status: SubscriptionStatus): Promise<Subscription>;
+  /** Used by DeletePlanUseCase to prevent deletion of plans in use */
+  existsActiveByPlanId(planId: string): Promise<boolean>;
 }
