@@ -32,6 +32,7 @@ import { GenerateInvoiceUseCase } from '../../application/use-cases/invoices/Gen
 import { GetUserInvoicesUseCase } from '../../application/use-cases/invoices/GetUserInvoicesUseCase';
 import { GetAllInvoicesUseCase } from '../../application/use-cases/invoices/GetAllInvoicesUseCase';
 import { PayInvoiceUseCase } from '../../application/use-cases/invoices/PayInvoiceUseCase';
+import { AdminUpdateInvoiceStatusUseCase } from '../../application/use-cases/invoices/AdminUpdateInvoiceStatusUseCase';
 import { GetDashboardMetricsUseCase } from '../../application/use-cases/dashboard/GetDashboardMetricsUseCase';
 
 // Controllers
@@ -118,6 +119,7 @@ export const buildContainer = (): AppContainer => {
   const getUserInvoicesUseCase = new GetUserInvoicesUseCase(invoiceRepository);
   const getAllInvoicesUseCase = new GetAllInvoicesUseCase(invoiceRepository);
   const payInvoiceUseCase = new PayInvoiceUseCase(invoiceRepository, subscriptionRepository);
+  const adminUpdateInvoiceStatusUseCase = new AdminUpdateInvoiceStatusUseCase(invoiceRepository);
 
   const getDashboardMetricsUseCase = new GetDashboardMetricsUseCase(
     userRepository,
@@ -146,6 +148,7 @@ export const buildContainer = (): AppContainer => {
     getUserInvoicesUseCase,
     getAllInvoicesUseCase,
     payInvoiceUseCase,
+    adminUpdateInvoiceStatusUseCase,
   );
   const dashboardController = new DashboardController(getDashboardMetricsUseCase);
 

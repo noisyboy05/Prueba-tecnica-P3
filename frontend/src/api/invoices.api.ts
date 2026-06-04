@@ -17,3 +17,15 @@ export const payInvoice = async (id: string): Promise<Invoice> => {
   });
   return res.data.data;
 };
+
+/** ADMIN: manually override invoice status (PENDING | PAID | OVERDUE) */
+export const adminUpdateInvoiceStatus = async (
+  id: string,
+  status: 'PENDING' | 'PAID' | 'OVERDUE',
+): Promise<Invoice> => {
+  const res = await axiosInstance.patch<ApiSuccessResponse<Invoice>>(
+    `/invoices/${id}/status`,
+    { status },
+  );
+  return res.data.data;
+};

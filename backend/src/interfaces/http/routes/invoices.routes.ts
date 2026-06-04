@@ -8,6 +8,9 @@ export const createInvoicesRouter = (container: AppContainer): Router => {
   // ADMIN: view all invoices
   router.get('/', authenticate, adminOnly, invoicesController.getAll);
 
+  // ADMIN: manually override invoice status (PENDING | PAID | OVERDUE)
+  router.patch('/:id/status', authenticate, adminOnly, invoicesController.adminUpdateStatus);
+
   // CLIENT: view own invoices — gated by checkSubscription (premium feature)
   router.get('/me', authenticate, clientOnly, checkSubscription, invoicesController.getMine);
 
