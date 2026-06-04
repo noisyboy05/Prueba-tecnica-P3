@@ -8,7 +8,12 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+  type GridValueFormatterParams,
+} from '@mui/x-data-grid';
 import { useAuth } from '../hooks/useAuth';
 import { useSnackbar } from '../hooks/useSnackbar';
 import { getAllInvoices, getMyInvoices, payInvoice } from '../api/invoices.api';
@@ -54,46 +59,49 @@ export const Invoices = (): JSX.Element => {
     }
   };
 
+  // v6 API: valueFormatter receives params: GridValueFormatterParams — use params.value
   const columns: GridColDef<Invoice>[] = [
     {
       field: 'id',
       headerName: 'Invoice #',
       width: 130,
-      valueFormatter: (v: unknown) => String(v).slice(0, 8).toUpperCase(),
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        value.slice(0, 8).toUpperCase(),
     },
     {
       field: 'amount',
       headerName: 'Amount',
       width: 120,
-      valueFormatter: (v: unknown) =>
-        `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      valueFormatter: ({ value }: GridValueFormatterParams<number>) =>
+        `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     },
     {
       field: 'status',
       headerName: 'Status',
       width: 130,
-      renderCell: ({ value }: GridRenderCellParams<Invoice, InvoiceStatus>) => (
-        <StatusChip status={value} />
-      ),
+      renderCell: ({ value }: GridRenderCellParams<Invoice, InvoiceStatus>) =>
+        value ? <StatusChip status={value} /> : null,
     },
     {
       field: 'dueDate',
       headerName: 'Due Date',
       width: 140,
-      valueFormatter: (v: unknown) => new Date(String(v)).toLocaleDateString(),
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        new Date(value).toLocaleDateString(),
     },
     {
       field: 'createdAt',
       headerName: 'Issued',
       width: 140,
-      valueFormatter: (v: unknown) => new Date(String(v)).toLocaleDateString(),
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        new Date(value).toLocaleDateString(),
     },
     ...(isAdmin
       ? [{
           field: 'subscriptionId',
           headerName: 'Subscription',
           width: 140,
-          valueFormatter: (v: unknown) => String(v).slice(0, 8) + '…',
+          valueFormatter: ({ value }: GridValueFormatterParams<string>) => value.slice(0, 8) + '…',
         } as GridColDef<Invoice>]
       : [{
           field: 'actions',

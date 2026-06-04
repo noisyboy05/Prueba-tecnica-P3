@@ -14,9 +14,13 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 import IconButton from '@mui/material/IconButton';
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+  type GridValueFormatterParams,
+} from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
@@ -137,19 +141,21 @@ export const Plans = (): JSX.Element => {
       field: 'name', headerName: 'Tier', width: 110,
       renderCell: ({ value }: GridRenderCellParams<Plan, PlanName>) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: PLAN_COLORS[value] }} />
+          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: value ? PLAN_COLORS[value] : 'grey.400' }} />
           {value}
         </Box>
       ),
     },
     {
       field: 'price', headerName: 'Price (USD)', width: 130,
-      valueFormatter: (v: unknown) => `$${Number(v).toFixed(2)}`,
+      // v6 API: valueFormatter receives params.value, not the raw value directly
+      valueFormatter: ({ value }: GridValueFormatterParams<number>) => `$${value.toFixed(2)}`,
     },
     { field: 'description', headerName: 'Description', flex: 1, minWidth: 200 },
     {
       field: 'createdAt', headerName: 'Created', width: 150,
-      valueFormatter: (v: unknown) => new Date(String(v)).toLocaleDateString(),
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        new Date(value).toLocaleDateString(),
     },
     ...(isAdmin ? [{
       field: 'actions',

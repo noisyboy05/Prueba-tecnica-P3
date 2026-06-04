@@ -21,7 +21,13 @@ import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import AddIcon from '@mui/icons-material/Add';
 import RepeatIcon from '@mui/icons-material/Repeat';
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+  type GridValueFormatterParams,
+  type GridValueGetterParams,
+} from '@mui/x-data-grid';
 import { useAuth } from '../hooks/useAuth';
 import { useSnackbar } from '../hooks/useSnackbar';
 import { getAllSubscriptions, getMySubscription, createSubscription } from '../api/subscriptions.api';
@@ -187,25 +193,44 @@ export const Subscriptions = (): JSX.Element => {
     }
   };
 
+  // v6 API notes:
+  //   valueFormatter receives params: GridValueFormatterParams — use params.value
+  //   valueGetter    receives params: GridValueGetterParams   — use params.row
   const columns: GridColDef<Subscription>[] = [
-    { field: 'id', headerName: 'ID', width: 120, valueFormatter: (v: unknown) => String(v).slice(0, 8) + '…' },
-    { field: 'userId', headerName: 'User ID', width: 130, valueFormatter: (v: unknown) => String(v).slice(0, 8) + '…' },
+    {
+      field: 'id', headerName: 'ID', width: 120,
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) => value.slice(0, 8) + '…',
+    },
+    {
+      field: 'userId', headerName: 'User ID', width: 130,
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) => value.slice(0, 8) + '…',
+    },
     {
       field: 'plan', headerName: 'Plan', width: 110,
-      valueGetter: (_v: unknown, row: Subscription) => row.plan?.name ?? row.planId.slice(0, 8),
+      valueGetter: (params: GridValueGetterParams<Subscription>) =>
+        params.row.plan?.name ?? params.row.planId.slice(0, 8),
     },
     {
       field: 'status', headerName: 'Status', width: 120,
-      renderCell: ({ value }: GridRenderCellParams<Subscription, SubscriptionStatus>) => (
-        <StatusChip status={value} />
-      ),
+      renderCell: ({ value }: GridRenderCellParams<Subscription, SubscriptionStatus>) =>
+        value ? <StatusChip status={value} /> : null,
     },
-    { field: 'startDate', headerName: 'Start', width: 120, valueFormatter: (v: unknown) => new Date(String(v)).toLocaleDateString() },
-    { field: 'endDate',   headerName: 'End',   width: 120, valueFormatter: (v: unknown) => new Date(String(v)).toLocaleDateString() },
+    {
+      field: 'startDate', headerName: 'Start', width: 120,
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        new Date(value).toLocaleDateString(),
+    },
+    {
+      field: 'endDate', headerName: 'End', width: 120,
+      valueFormatter: ({ value }: GridValueFormatterParams<string>) =>
+        new Date(value).toLocaleDateString(),
+    },
     {
       field: 'plan.price', headerName: 'Price', width: 110,
-      valueGetter: (_v: unknown, row: Subscription) => row.plan?.price ?? '—',
-      valueFormatter: (v: unknown) => v !== '—' ? `$${Number(v).toFixed(2)}` : '—',
+      valueGetter: (params: GridValueGetterParams<Subscription>) =>
+        params.row.plan?.price ?? '—',
+      valueFormatter: ({ value }: GridValueFormatterParams<number | string>) =>
+        value !== '—' ? `$${Number(value).toFixed(2)}` : '—',
     },
   ];
 

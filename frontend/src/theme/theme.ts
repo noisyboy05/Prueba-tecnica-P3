@@ -4,6 +4,8 @@
 // Design tokens: soft radii, minimal elevation, no text-transform on buttons
 
 import { createTheme, alpha } from '@mui/material/styles';
+// Augments MUI theme types to accept DataGrid component overrides
+import '@mui/x-data-grid/themeAugmentation';
 
 export const theme = createTheme({
   palette: {
