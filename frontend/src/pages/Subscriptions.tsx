@@ -42,6 +42,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import CancelIcon from '@mui/icons-material/CancelOutlined';
@@ -49,6 +50,9 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import ContentCopyIcon from '@mui/icons-material/ContentCopyOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarTodayOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import AutorenewIcon from '@mui/icons-material/AutorenewOutlined';
 import {
   DataGrid,
   type GridColDef,
@@ -119,23 +123,80 @@ const ClientSubscriptionView = ({ userId }: { userId: string }): JSX.Element => 
     });
   };
 
+  // ── Loading ──────────────────────────────────────────────────────────────
+
   if (subscription === undefined) {
     return (
-      <Card>
-        <CardContent sx={{ p: 3 }}>
-          <Skeleton variant="text" width="40%" height={32} sx={{ mb: 2 }} />
-          <Grid container spacing={2}>
-            {[1, 2, 3, 4].map((i) => (
-              <Grid item xs={12} sm={6} key={i}>
-                <Skeleton variant="text" height={18} />
-                <Skeleton variant="text" width="60%" height={26} />
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Skeleton variant="rounded" height={56} sx={{ borderRadius: 2 }} />
+        <Card>
+          <CardContent sx={{ p: 3 }}>
+            <Skeleton variant="text" width="40%" height={32} sx={{ mb: 2 }} />
+            <Grid container spacing={2}>
+              {[1, 2, 3, 4].map((i) => (
+                <Grid item xs={12} sm={6} key={i}>
+                  <Skeleton variant="text" height={18} />
+                  <Skeleton variant="text" width="60%" height={26} />
+                </Grid>
+              ))}
+            </Grid>
+          </CardContent>
+        </Card>
+      </Box>
     );
   }
+
+  // ── Shared elements ───────────────────────────────────────────────────────
+
+  const isActive  = subscription?.status === 'ACTIVE';
+  const isExpired = subscription?.status === 'EXPIRED';
+
+  // MEJORA 5: Global status chip
+  const StatusChipGlobal = subscription && (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5, p: 2,
+      bgcolor: isActive ? '#F0FDF4' : '#FEF2F2',
+      border: `1.5px solid ${isActive ? '#86EFAC' : '#FCA5A5'}`,
+      borderRadius: 2,
+    }}>
+      {isActive
+        ? <CheckCircleOutlineIcon sx={{ color: '#16A34A', fontSize: 22 }} />
+        : <LockOutlinedIcon sx={{ color: '#DC2626', fontSize: 22 }} />
+      }
+      <Box sx={{ flex: 1 }}>
+        <Typography variant="subtitle2" fontWeight={700} color={isActive ? '#15803D' : '#DC2626'}>
+          {isActive ? 'Subscription Active' : 'Subscription Expired'}
+        </Typography>
+        <Typography variant="caption" color={isActive ? '#15803D' : '#DC2626'} sx={{ opacity: 0.8 }}>
+          {isActive ? 'Your premium features are enabled.' : 'Your premium features have been disabled until renewal.'}
+        </Typography>
+      </Box>
+      <Chip
+        label={subscription.status}
+        size="small"
+        sx={{
+          fontWeight: 700, fontSize: '0.75rem',
+          bgcolor: isActive ? '#16A34A' : '#DC2626',
+          color: '#FFFFFF',
+        }}
+      />
+    </Box>
+  );
+
+  // MEJORA 3: Access banner (Alert)
+  const AccessBanner = subscription && (
+    <Alert
+      severity={isActive ? 'success' : 'error'}
+      icon={isActive ? <CheckCircleOutlineIcon /> : <LockOutlinedIcon />}
+      sx={{ mb: 2, '& .MuiAlert-message': { width: '100%' } }}
+    >
+      <AlertTitle sx={{ fontWeight: 700 }}>
+        {isActive ? 'Subscription Active' : 'Subscription Expired'}
+      </AlertTitle>
+      {isActive
+        ? 'Your premium features are enabled. You have full access to invoices and premium content.'
+        : 'Your premium features have been disabled until renewal. Contact an administrator to restore access.'}
+    </Alert>
+  );
 
   const UserIdCard = (
     <Card sx={{ bgcolor: '#F0F9FF', border: '1px solid #BAE6FD' }}>
@@ -162,6 +223,8 @@ const ClientSubscriptionView = ({ userId }: { userId: string }): JSX.Element => 
     </Card>
   );
 
+  // ── No subscription ───────────────────────────────────────────────────────
+
   if (!subscription) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -182,6 +245,8 @@ const ClientSubscriptionView = ({ userId }: { userId: string }): JSX.Element => 
     );
   }
 
+  // ── Active/Expired subscription ───────────────────────────────────────────
+
   const fields: Array<{ label: string; value: React.ReactNode }> = [
     { label: 'Plan', value: subscription.plan ? (
         <Chip label={subscription.plan.name} size="small"
@@ -196,6 +261,56 @@ const ClientSubscriptionView = ({ userId }: { userId: string }): JSX.Element => 
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* MEJORA 5: Global status chip bar */}
+      {StatusChipGlobal}
+
+      {/* MEJORA 3: Access control banner */}
+      {AccessBanner}
+
+      {/* MEJORA 6: Renewal Required card (expired only) */}
+      {isExpired && (
+        <Card sx={{ border: '1.5px solid #FECACA', bgcolor: '#FEF2F2' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: '50%', bgcolor: '#FEE2E2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <AutorenewIcon sx={{ color: '#DC2626', fontSize: 24 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle1" fontWeight={700} color="#DC2626" sx={{ mb: 0.5 }}>
+                  Renewal Required
+                </Typography>
+                <Grid container spacing={2} sx={{ mb: 1.5 }}>
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}
+                      textTransform="uppercase" letterSpacing="0.06em" display="block">Plan</Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {subscription.plan?.name ?? '—'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}
+                      textTransform="uppercase" letterSpacing="0.06em" display="block">Expired On</Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {new Date(subscription.endDate).toLocaleDateString()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}
+                      textTransform="uppercase" letterSpacing="0.06em" display="block">Status</Typography>
+                    <StatusChip status="EXPIRED" />
+                  </Grid>
+                </Grid>
+                <Typography variant="body2" color="#DC2626" fontWeight={500}>
+                  Contact an administrator to renew your subscription.
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Subscription detail card */}
       <Card>
         <CardContent sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
